@@ -17,8 +17,8 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    {% if photo %}
-                    <img src="{{ url_for('static', filename=photo.file_path) }}" class="img-fluid rounded mb-3" alt="Session photo">
+                    {% if session.session_start_photo_data %}
+                    <img src="{{ session.session_start_photo_data }}" class="img-fluid rounded mb-3" alt="Session photo">
                     {% else %}
                     <p class="text-muted">No photo available.</p>
                     {% endif %}

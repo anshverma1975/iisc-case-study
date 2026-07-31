@@ -5,6 +5,7 @@ import uuid
 import secrets
 from datetime import date, datetime, timedelta
 from functools import wraps
+import base64
 
 from flask import (
     Flask, render_template, redirect, url_for, request, flash, session, Response
@@ -593,22 +594,15 @@ def register_routes(app):
             created_by=current_user.id,
         )
         db.session.add(log)
-        db.session.flush()
 
-        upload_dir = os.path.join(app.config["UPLOAD_FOLDER"], "session_start")
-        os.makedirs(upload_dir, exist_ok=True)
+        # Convert photo to base64 and store it directly on the log
+        import base64
+        photo_data = photo.read()
+        base64_image = base64.b64encode(photo_data).decode('utf-8')
+        mime_type = photo.content_type or 'image/jpeg'
+        data_url = f"data:{mime_type};base64,{base64_image}"
+        log.session_start_photo_data = data_url
 
-        ext = secure_filename(photo.filename).rsplit(".", 1)[-1].lower()
-        filename = f"{current_user.school}_{today.isoformat()}_{uuid.uuid4().hex[:8]}.{ext}"
-        filepath = os.path.join(upload_dir, filename)
-        photo.save(filepath)
-
-        session_photo = SessionPhoto(
-            session_log_id=log.id,
-            photo_type="session_start",
-            file_path=f"uploads/session_start/{filename}",
-        )
-        db.session.add(session_photo)
         db.session.commit()
 
         flash("Session log submitted successfully.", "success")
@@ -618,10 +612,7 @@ def register_routes(app):
     @role_required("staff")
     def staff_session_detail(session_id):
         log = SessionLog.query.get_or_404(session_id)
-        photo = SessionPhoto.query.filter_by(
-            session_log_id=log.id, photo_type="session_start"
-        ).first()
-        return render_template("staff_session_detail.html", session=log, photo=photo)
+        return render_template("staff_session_detail.html", session=log)
 
     @app.route("/staff/logs")
     @role_required("staff")
@@ -922,10 +913,7 @@ def register_routes(app):
     @role_required("researcher")
     def researcher_session_detail(session_id):
         log = SessionLog.query.get_or_404(session_id)
-        photo = SessionPhoto.query.filter_by(
-            session_log_id=log.id, photo_type="session_start"
-        ).first()
-        return render_template("researcher_session_detail.html", session=log, photo=photo)
+        return render_template("researcher_session_detail.html", session=log)
 
     @app.route("/researcher/schedule")
     @role_required("researcher")
@@ -1082,10 +1070,7 @@ def register_routes(app):
     @role_required("superadmin")
     def superadmin_session_detail(session_id):
         log = SessionLog.query.get_or_404(session_id)
-        photo = SessionPhoto.query.filter_by(
-            session_log_id=log.id, photo_type="session_start"
-        ).first()
-        return render_template("staff_session_detail.html", session=log, photo=photo, editable=True)
+        return render_template("staff_session_detail.html", session=log, editable=True)
 
     @app.route("/superadmin/session/new")
     @role_required("superadmin")

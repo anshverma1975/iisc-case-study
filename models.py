@@ -52,6 +52,7 @@ class SessionLog(db.Model):
     time_lost_minutes = db.Column(db.Integer, nullable=True)
     issue_resolved = db.Column(db.Boolean, default=False)
     called_superadmin = db.Column(db.Boolean, default=False)
+    session_start_photo_data = db.Column(db.Text, nullable=True)   # base64 image
 
     student_feedback_1 = db.Column(db.Text)
     student_feedback_2 = db.Column(db.Text)
