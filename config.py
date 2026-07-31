@@ -5,10 +5,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
     
-    # Use Neon Postgres on Vercel, SQLite locally
     database_url = os.environ.get("DATABASE_URL")
     if database_url:
-        # Replace postgres:// with postgresql:// for SQLAlchemy
         database_url = database_url.replace("postgres://", "postgresql://", 1)
     else:
         database_url = f"sqlite:///{os.path.join(BASE_DIR, 'edutracker.db')}"

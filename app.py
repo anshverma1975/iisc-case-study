@@ -103,9 +103,7 @@ def check_csrf():
     return token and token == session.get("csrf_token")
 
 
-# ---------------------------------------------------------------------------
-# Shared helpers
-# ---------------------------------------------------------------------------
+
 
 def school_summaries(app):
     """Return per-school summary: coordinator, sessions this week, avg engagement."""
@@ -341,9 +339,6 @@ def register_routes(app):
         flash("Unknown role.", "danger")
         return redirect(url_for("landing"))
 
-    # -----------------------------------------------------------------
-    # Staff routes
-    # -----------------------------------------------------------------
 
     @app.route("/staff/dashboard")
     @role_required("staff")
@@ -452,8 +447,6 @@ def register_routes(app):
             .all()
         )
 
-        # Which upcoming sessions already have a log (in case a schedule was
-        # accepted for today or a past-dated edge case and already logged).
         logged_dates = {
             l.date
             for l in SessionLog.query.filter_by(school=current_user.school).all()
@@ -526,8 +519,6 @@ def register_routes(app):
             flash("Start time and end time are required.", "danger")
             return redirect(url_for("staff_session_today"))
 
-        # A session already in progress (resumed after reload) is allowed to
-        # complete even if today's schedule was later removed/changed.
         is_resuming = request.form.get("resuming") == "1"
         if not is_resuming and current_user.role != "superadmin":
             schedule_today = Schedule.query.filter_by(
@@ -595,7 +586,6 @@ def register_routes(app):
         )
         db.session.add(log)
 
-        # Convert photo to base64 and store it directly on the log
         import base64
         photo_data = photo.read()
         base64_image = base64.b64encode(photo_data).decode('utf-8')
@@ -652,8 +642,6 @@ def register_routes(app):
                 }
             )
 
-        # Requests initiated by a supervisor (superadmin) for this staff's school,
-        # awaiting the staff's response.
         incoming = (
             Schedule.query.join(User, Schedule.proposed_by == User.id)
             .filter(
@@ -677,8 +665,6 @@ def register_routes(app):
                 }
             )
 
-        # History of supervisor requests this staff member has already
-        # accepted or rejected, so they don't just disappear.
         incoming_history = (
             Schedule.query.join(User, Schedule.proposed_by == User.id)
             .filter(
@@ -847,9 +833,6 @@ def register_routes(app):
         }
         return render_template("staff_profile.html", profile=profile)
 
-    # -----------------------------------------------------------------
-    # Researcher routes (read-only across all schools)
-    # -----------------------------------------------------------------
 
     @app.route("/researcher/dashboard")
     @role_required("researcher")
@@ -954,9 +937,6 @@ def register_routes(app):
     def researcher_profile():
         return render_template("researcher_profile.html")
 
-    # -----------------------------------------------------------------
-    # Superadmin routes
-    # -----------------------------------------------------------------
 
     @app.route("/superadmin/dashboard")
     @role_required("superadmin")
@@ -1141,7 +1121,6 @@ def register_routes(app):
 
         school = request.args.get("school", "").strip()
 
-        # Pending proposals sent in by staff, awaiting superadmin response.
         proposals_q = (
             Schedule.query.join(User, Schedule.proposed_by == User.id)
             .filter(Schedule.status == "pending", User.role != "superadmin")
@@ -1150,8 +1129,6 @@ def register_routes(app):
             proposals_q = proposals_q.filter(Schedule.school == school)
         proposals = proposals_q.order_by(Schedule.proposed_date.asc()).all()
 
-        # Full history of staff proposals that have already been resolved
-        # (accepted/rejected), so they remain visible instead of vanishing.
         history_q = (
             Schedule.query.join(User, Schedule.proposed_by == User.id)
             .filter(
@@ -1163,7 +1140,6 @@ def register_routes(app):
             history_q = history_q.filter(Schedule.school == school)
         staff_history = history_q.order_by(Schedule.proposed_date.desc()).limit(50).all()
 
-        # Sessions the superadmin has proposed to a school's staff, with status.
         own_proposals_q = Schedule.query.filter_by(proposed_by=current_user.id)
         if school:
             own_proposals_q = own_proposals_q.filter(Schedule.school == school)
