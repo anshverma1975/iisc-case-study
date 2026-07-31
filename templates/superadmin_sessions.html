@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Session Logs - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">All Session Logs</h3>
+        <a href="{{ url_for('superadmin_session_new') }}" class="btn btn-success">
+            <i class="bi bi-plus-lg me-1"></i> Log a Session
+        </a>
+    </div>
+
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">School</label>
+            <select name="school" class="form-select">
+                <option value="">All Schools</option>
+                {% for s in schools %}
+                <option value="{{ s }}" {% if selected_school == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Start Date</label>
+            <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">End Date</label>
+            <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+        </div>
+    </form>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>School</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Headcount</th>
+                        <th>Engagement</th>
+                        <th>Tech Issue</th>
+                        <th>Supervisor Present</th>
+                        <th>Experiment</th>
+                        <th>Feedback</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr class="{{ 'table-warning' if log.headcount == 0 else '' }}">
+                        <td>{{ log.school }}</td>
+                        <td>{{ log.date.strftime('%d %b %Y') }}</td>
+                        <td>{{ log.start_time }} - {{ log.end_time }}</td>
+                        <td>{{ log.headcount }}</td>
+                        <td>{{ log.engagement }}%</td>
+                        <td>
+                            {% if log.technical_issue %}
+                            <span class="badge bg-danger">Yes</span>
+                            {% else %}
+                            <span class="badge bg-success">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.supervisor_present %}
+                            <span class="badge bg-success">Yes</span>
+                            {% else %}
+                            <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.session_type == 'experiment' %}
+                            <span class="badge bg-primary">Yes</span>
+                            {% else %}
+                            <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.feedback_sheets_collected %}
+                            <span class="badge bg-success">Collected</span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">Missing</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('superadmin_session_detail', session_id=log.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="{{ url_for('superadmin_session_edit', session_id=log.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="10">No logs found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

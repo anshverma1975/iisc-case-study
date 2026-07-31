@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% import "_recent_logs_table.html" as tables %}
+{% block title %}Superadmin Dashboard - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Welcome, {{ current_user.name }}</h2>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Sessions This Week</h6>
+                    <h2 class="mb-0">{{ stats.sessions_this_week }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Avg Engagement</h6>
+                    <h2 class="mb-0">{{ stats.avg_engagement }}%</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Tech Issues</h6>
+                    <h2 class="mb-0">{{ stats.tech_issues }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Pending Proposals</h6>
+                    <h2 class="mb-0">{{ stats.pending_proposals }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 g-2">
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('superadmin_session_new') }}" class="btn btn-success w-100">
+                <i class="bi bi-camera me-2"></i> Log a Session
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('superadmin_schedule') }}" class="btn btn-outline-primary w-100">
+                <i class="bi bi-calendar-week me-2"></i> Schedule Proposals
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('superadmin_users') }}" class="btn btn-outline-primary w-100">
+                <i class="bi bi-people me-2"></i> Manage Users
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('superadmin_manage_sessions') }}" class="btn btn-outline-primary w-100">
+                <i class="bi bi-journal-check me-2"></i> Manage Sessions
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>Recent Logs</h4>
+            <a href="{{ url_for('superadmin_sessions') }}">All Session Logs</a>
+        </div>
+        {{ tables.recent_logs_table(recent_logs, 'superadmin_session_detail') }}
+    </div>
+</div>
+{% endblock %}

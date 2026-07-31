@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Export - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Export Session Logs</h3>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">School</label>
+                    <select class="form-select" disabled>
+                        <option>All Schools</option>
+                        {% for s in schools %}
+                        <option>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" disabled>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" disabled>
+                </div>
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary" disabled>
+                        <i class="bi bi-download me-1"></i> Export CSV
+                    </button>
+                    <p class="text-muted small mt-2 mb-0">Only superadmin can export data.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}Today's Session - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Today's Session</h3>
+
+    <div class="card border-0 shadow-sm mb-4" id="step1Card">
+        <div class="card-body">
+            <h6 class="mb-3">Step 1: Session Start Photo</h6>
+            <input type="file" id="photoInput" class="form-control mb-3" capture="environment" accept="image/*">
+            <button type="button" class="btn btn-primary" id="takePhotoBtn">Take Photo</button>
+            <div id="photoPreview" class="mt-3 d-none">
+                <img id="photoPreviewImg" src="" class="img-fluid rounded" alt="Session photo preview" style="max-height:250px;">
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm d-none" id="logFormCard">
+        <div class="card-body">
+            <h6 class="mb-3">Step 2: Session Log</h6>
+
+            <div id="resumedPhotoPreview" class="mb-3 d-none">
+                <img id="resumedPhotoImg" src="" class="img-fluid rounded" alt="Session photo" style="max-height:250px;">
+            </div>
+
+            <form id="sessionForm" action="{{ url_for('staff_session_create') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="resuming" id="resumingField" value="0">
+
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" name="start_time" id="startTimeInput" class="form-control"
+                               {% if schedule_today %}value="{{ schedule_today.start_time }}" readonly{% endif %} required>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label">End Time</label>
+                        <input type="time" name="end_time" id="endTimeInput" class="form-control"
+                               {% if schedule_today %}value="{{ schedule_today.end_time }}" readonly{% endif %} required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Headcount</label>
+                    <input type="number" name="headcount" class="form-control" min="0" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Engagement: <span id="engagementValue">50</span>%</label>
+                    <input type="range" class="form-range" id="engagementSlider" min="0" max="100" value="50">
+                    <input type="hidden" name="engagement" id="engagementHidden" value="50">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Session Type</label>
+                    <select name="session_type" class="form-select" {% if schedule_today %}disabled{% endif %}>
+                        <option value="normal" {% if not schedule_today or schedule_today.session_type != 'experiment' %}selected{% endif %}>Normal</option>
+                        <option value="experiment" {% if schedule_today and schedule_today.session_type == 'experiment' %}selected{% endif %}>Experiment</option>
+                    </select>
+                    {% if schedule_today %}
+                    <input type="hidden" name="session_type" value="{{ schedule_today.session_type }}">
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" name="supervisor_present" id="supervisorToggle">
+                    <label class="form-check-label" for="supervisorToggle">Supervisor present</label>
+                </div>
+
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" name="technical_issue" id="techIssueToggle">
+                    <label class="form-check-label" for="techIssueToggle">Technical Issue occurred</label>
+                </div>
+                <div id="techIssueDetails" class="mb-3 d-none ps-3 border-start">
+                    <label class="form-label">Issue Description</label>
+                    <textarea name="issue_description" class="form-control mb-2" rows="2"></textarea>
+                    <label class="form-label">Time Lost (minutes)</label>
+                    <input type="number" name="time_lost_minutes" class="form-control mb-2" min="0">
+                    <div class="form-check mb-1">
+                        <input class="form-check-input" type="checkbox" name="issue_resolved" id="issueResolved">
+                        <label class="form-check-label" for="issueResolved">Issue resolved</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="called_superadmin" id="calledSuperadmin">
+                        <label class="form-check-label" for="calledSuperadmin">Called superadmin</label>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" name="feedback_sheets_collected" id="feedbackToggle">
+                    <label class="form-check-label" for="feedbackToggle">Feedback sheets collected</label>
+                </div>
+
+                <input type="hidden" name="student_feedback_1" id="feedback1Hidden">
+                <input type="hidden" name="student_feedback_2" id="feedback2Hidden">
+                <input type="hidden" name="student_feedback_3" id="feedback3Hidden">
+
+                <button type="button" class="btn btn-success" id="submitLogBtn">Submit Log</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="feedbackModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Student Verbatim Feedback</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Feedback 1</label>
+                    <input type="text" class="form-control" id="feedbackInput1">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Feedback 2</label>
+                    <input type="text" class="form-control" id="feedbackInput2">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Feedback 3</label>
+                    <input type="text" class="form-control" id="feedbackInput3">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="submitFeedbackBtn">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const step1Card = document.getElementById('step1Card');
+const logFormCard = document.getElementById('logFormCard');
+const photoInput = document.getElementById('photoInput');
+const photoPreview = document.getElementById('photoPreview');
+const photoPreviewImg = document.getElementById('photoPreviewImg');
+const resumedPhotoPreview = document.getElementById('resumedPhotoPreview');
+const resumedPhotoImg = document.getElementById('resumedPhotoImg');
+const resumingField = document.getElementById('resumingField');
+
+let resumedPhotoFile = null; // File reconstructed from stored base64, used on submit if a fresh photo isn't retaken
+
+function todayStr() {
+    return new Date().toISOString().slice(0, 10);
+}
+
+function dataUrlToFile(dataUrl, filename) {
+    const arr = dataUrl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) { u8arr[n] = bstr.charCodeAt(n); }
+    return new File([u8arr], filename, { type: mime });
+}
+
+function showLogForm() {
+    step1Card.classList.add('d-none');
+    logFormCard.classList.remove('d-none');
+}
+
+function fileToDataUrl(file, callback) {
+    const reader = new FileReader();
+    reader.onload = () => callback(reader.result);
+    reader.readAsDataURL(file);
+}
+
+document.getElementById('takePhotoBtn').addEventListener('click', () => {
+    if (!photoInput.files.length) {
+        alert('Please choose/take a photo first.');
+        return;
+    }
+    const file = photoInput.files[0];
+    photoPreviewImg.src = URL.createObjectURL(file);
+    photoPreview.classList.remove('d-none');
+    showLogForm();
+
+    fileToDataUrl(file, (dataUrl) => {
+        localStorage.setItem('sessionPhoto', dataUrl);
+        localStorage.setItem('sessionActive', 'true');
+        localStorage.setItem('sessionDate', todayStr());
+    });
+});
+
+document.getElementById('engagementSlider').addEventListener('input', function () {
+    document.getElementById('engagementValue').innerText = this.value;
+    document.getElementById('engagementHidden').value = this.value;
+});
+
+document.getElementById('techIssueToggle').addEventListener('change', function () {
+    document.getElementById('techIssueDetails').classList.toggle('d-none', !this.checked);
+});
+
+document.getElementById('submitLogBtn').addEventListener('click', () => {
+    const form = document.getElementById('sessionForm');
+    if (!photoInput.files.length && !resumedPhotoFile) {
+        alert('Session start photo is required.');
+        return;
+    }
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    const feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+    feedbackModal.show();
+});
+
+document.getElementById('submitFeedbackBtn').addEventListener('click', () => {
+    document.getElementById('feedback1Hidden').value = document.getElementById('feedbackInput1').value;
+    document.getElementById('feedback2Hidden').value = document.getElementById('feedbackInput2').value;
+    document.getElementById('feedback3Hidden').value = document.getElementById('feedbackInput3').value;
+
+    const form = document.getElementById('sessionForm');
+    const dt = new DataTransfer();
+    const fileToSend = photoInput.files.length ? photoInput.files[0] : resumedPhotoFile;
+    dt.items.add(fileToSend);
+    // rename input to the field the server expects
+    const realPhotoInput = document.createElement('input');
+    realPhotoInput.type = 'file';
+    realPhotoInput.name = 'session_start_photo';
+    realPhotoInput.style.display = 'none';
+    realPhotoInput.files = dt.files;
+    form.appendChild(realPhotoInput);
+
+    localStorage.removeItem('sessionActive');
+    localStorage.removeItem('sessionDate');
+    localStorage.removeItem('sessionPhoto');
+    form.submit();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    const active = localStorage.getItem('sessionActive') === 'true';
+    const savedDate = localStorage.getItem('sessionDate');
+    if (active && savedDate === todayStr()) {
+        resumingField.value = '1';
+        const storedPhoto = localStorage.getItem('sessionPhoto');
+        if (storedPhoto) {
+            resumedPhotoFile = dataUrlToFile(storedPhoto, 'resumed_session_photo.jpg');
+            resumedPhotoImg.src = storedPhoto;
+            resumedPhotoPreview.classList.remove('d-none');
+            showLogForm();
+        }
+        // If no stored photo (e.g. storage cleared), fall through and show the
+        // photo step again so the staff can take a new one; sessionActive stays true.
+    }
+});
+</script>
+{% endblock %}

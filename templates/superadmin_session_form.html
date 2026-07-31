@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit Session' if log else 'Log a Session' }} - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">{{ 'Edit Session Log' if log else 'Log a Session' }}</h3>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form method="POST"
+                  action="{{ url_for('superadmin_session_update', session_id=log.id) if log else url_for('superadmin_session_create') }}"
+                  enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">School</label>
+                        <select name="school" class="form-select" required>
+                            <option value="" disabled {% if not log %}selected{% endif %}>Select school</option>
+                            {% for s in schools %}
+                            <option value="{{ s }}" {% if log and log.school == s %}selected{% endif %}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="date" class="form-control"
+                               value="{{ log.date.isoformat() if log else '' }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Session Type</label>
+                        <select name="session_type" class="form-select">
+                            <option value="normal" {% if not log or log.session_type != 'experiment' %}selected{% endif %}>Normal</option>
+                            <option value="experiment" {% if log and log.session_type == 'experiment' %}selected{% endif %}>Experiment</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" name="start_time" class="form-control"
+                               value="{{ log.start_time if log else '' }}" required>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label">End Time</label>
+                        <input type="time" name="end_time" class="form-control"
+                               value="{{ log.end_time if log else '' }}" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Headcount</label>
+                    <input type="number" name="headcount" class="form-control" min="0"
+                           value="{{ log.headcount if log else '' }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Engagement: <span id="engagementValue">{{ log.engagement if log else 50 }}</span>%</label>
+                    <input type="range" class="form-range" id="engagementSlider" min="0" max="100"
+                           value="{{ log.engagement if log else 50 }}">
+                    <input type="hidden" name="engagement" id="engagementHidden" value="{{ log.engagement if log else 50 }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="3">{{ log.notes if log else '' }}</textarea>
+                </div>
+
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" name="supervisor_present" id="supervisorToggle"
+                           {% if log and log.supervisor_present %}checked{% endif %}>
+                    <label class="form-check-label" for="supervisorToggle">I (Superadmin) was present</label>
+                </div>
+
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" name="technical_issue" id="techIssueToggle"
+                           {% if log and log.technical_issue %}checked{% endif %}>
+                    <label class="form-check-label" for="techIssueToggle">Technical Issue occurred</label>
+                </div>
+                <div id="techIssueDetails" class="mb-3 ps-3 border-start {% if not log or not log.technical_issue %}d-none{% endif %}">
+                    <label class="form-label">Issue Description</label>
+                    <textarea name="issue_description" class="form-control mb-2" rows="2">{{ log.issue_description if log and log.issue_description else '' }}</textarea>
+                    <label class="form-label">Time Lost (minutes)</label>
+                    <input type="number" name="time_lost_minutes" class="form-control mb-2" min="0"
+                           value="{{ log.time_lost_minutes if log and log.time_lost_minutes is not none else '' }}">
+                    <div class="form-check mb-1">
+                        <input class="form-check-input" type="checkbox" name="issue_resolved" id="issueResolved"
+                               {% if log and log.issue_resolved %}checked{% endif %}>
+                        <label class="form-check-label" for="issueResolved">Issue resolved</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="called_superadmin" id="calledSuperadmin"
+                               {% if log and log.called_superadmin %}checked{% endif %}>
+                        <label class="form-check-label" for="calledSuperadmin">Called superadmin</label>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" name="feedback_sheets_collected" id="feedbackToggle"
+                           {% if log and log.feedback_sheets_collected %}checked{% endif %}>
+                    <label class="form-check-label" for="feedbackToggle">Feedback sheets collected</label>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Student Feedback 1</label>
+                        <input type="text" name="student_feedback_1" class="form-control" value="{{ log.student_feedback_1 if log else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Student Feedback 2</label>
+                        <input type="text" name="student_feedback_2" class="form-control" value="{{ log.student_feedback_2 if log else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Student Feedback 3</label>
+                        <input type="text" name="student_feedback_3" class="form-control" value="{{ log.student_feedback_3 if log else '' }}">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Session Start Photo {% if not log %}<span class="text-danger">*</span>{% endif %}</label>
+                    <input type="file" name="session_start_photo" class="form-control" accept="image/*" {% if not log %}required{% endif %}>
+                    {% if log %}
+                    <div class="form-text">Leave blank to keep the existing photo.</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">{{ 'Save Changes' if log else 'Submit Log' }}</button>
+                <a href="{{ url_for('superadmin_sessions') }}" class="btn btn-outline-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('engagementSlider').addEventListener('input', function () {
+    document.getElementById('engagementValue').innerText = this.value;
+    document.getElementById('engagementHidden').value = this.value;
+});
+document.getElementById('techIssueToggle').addEventListener('change', function () {
+    document.getElementById('techIssueDetails').classList.toggle('d-none', !this.checked);
+});
+</script>
+{% endblock %}

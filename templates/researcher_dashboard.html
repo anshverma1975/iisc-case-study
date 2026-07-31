@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% import "_recent_logs_table.html" as tables %}
+{% block title %}Researcher Dashboard - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Welcome, {{ current_user.name }}</h2>
+    <p class="text-muted">Read-only access to all school data.</p>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Sessions This Week</h6>
+                    <h2 class="mb-0">{{ stats.sessions_this_week }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Avg Engagement</h6>
+                    <h2 class="mb-0">{{ stats.avg_engagement }}%</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Tech Issues</h6>
+                    <h2 class="mb-0">{{ stats.tech_issues }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title">Pending Proposals</h6>
+                    <h2 class="mb-0">{{ stats.pending_proposals }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>Recent Logs</h4>
+            <a href="{{ url_for('researcher_sessions') }}">View All Session Logs</a>
+        </div>
+        {{ tables.recent_logs_table(recent_logs, 'researcher_session_detail') }}
+    </div>
+</div>
+{% endblock %}

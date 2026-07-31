@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Profile - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Profile</h3>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Name:</strong> {{ profile.name }}</p>
+                    <p><strong>School:</strong> {{ profile.school }}</p>
+                    <p><strong>Email:</strong> {{ profile.email }}</p>
+                    <p><strong>Contact:</strong> {{ profile.contact }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="mb-3">Activity Summary</h6>
+                    <p><strong>Total Sessions:</strong> {{ profile.total_sessions }}</p>
+                    <p><strong>Avg Engagement:</strong> {{ profile.avg_engagement }}%</p>
+                    <p><strong>Last Session:</strong> {{ profile.last_session }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

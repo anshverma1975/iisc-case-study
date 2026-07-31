@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}My Session Logs - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">My Session Logs</h3>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Headcount</th>
+                        <th>Engagement</th>
+                        <th>Tech Issue</th>
+                        <th>Supervisor Present</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr class="{{ 'table-warning' if log.headcount == 0 else '' }}">
+                        <td>{{ log.date.strftime('%d %b %Y') }}</td>
+                        <td>{{ log.headcount }}</td>
+                        <td>{{ log.engagement }}%</td>
+                        <td>
+                            {% if log.technical_issue %}
+                            <span class="badge bg-danger">Yes</span>
+                            {% else %}
+                            <span class="badge bg-success">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.supervisor_present %}
+                            <span class="badge bg-success">Yes</span>
+                            {% else %}
+                            <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('staff_session_detail', session_id=log.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6">No logs yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

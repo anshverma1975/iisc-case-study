@@ -1,0 +1,21 @@
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Uploaded files (may contain sensitive data)
+static/uploads/
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+project_export.txt

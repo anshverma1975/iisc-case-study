@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Manage Sessions - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h3 class="mb-0">Manage Sessions</h3>
+        <a href="{{ url_for('superadmin_session_new') }}" class="btn btn-success">
+            <i class="bi bi-plus-lg me-1"></i> Log a Session
+        </a>
+    </div>
+
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">School</label>
+            <select name="school" class="form-select" onchange="this.form.submit()">
+                <option value="">All Schools</option>
+                {% for s in schools %}
+                <option value="{{ s }}" {% if selected_school == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <h6 class="mb-3">Upcoming Sessions</h6>
+    <div class="row g-3 mb-4">
+        {% for s in upcoming_sessions %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-1">{{ s.school }} · {{ s.date_display }}</h6>
+                    <p class="mb-1">{{ s.time }}</p>
+                    {% if s.topic %}
+                    <p class="mb-1 small text-muted">Topic: {{ s.topic }}</p>
+                    {% endif %}
+                    <div class="d-flex gap-2 flex-wrap">
+                        {% if s.experiment %}
+                        <span class="badge bg-primary">Experiment</span>
+                        {% endif %}
+                        {% if s.is_today %}
+                        <span class="badge bg-warning text-dark">Today</span>
+                        {% endif %}
+                        {% if s.already_logged %}
+                        <span class="badge bg-success">Logged</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Not Logged Yet</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No upcoming sessions scheduled.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h6 class="mb-3">Completed Session Logs</h6>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>School</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Headcount</th>
+                            <th>Engagement</th>
+                            <th>Tech Issue</th>
+                            <th>Supervisor Present</th>
+                            <th>Experiment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in completed_logs %}
+                        <tr class="{{ 'table-warning' if log.headcount == 0 else '' }}">
+                            <td>{{ log.school }}</td>
+                            <td>{{ log.date.strftime('%d %b %Y') }}</td>
+                            <td>{{ log.start_time }} - {{ log.end_time }}</td>
+                            <td>{{ log.headcount }}</td>
+                            <td>{{ log.engagement }}%</td>
+                            <td>
+                                {% if log.technical_issue %}
+                                <span class="badge bg-danger">Yes</span>
+                                {% else %}
+                                <span class="badge bg-success">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.supervisor_present %}
+                                <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if log.session_type == 'experiment' %}
+                                <span class="badge bg-primary">Yes</span>
+                                {% else %}
+                                <span class="badge bg-secondary">No</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('superadmin_session_detail', session_id=log.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                <a href="{{ url_for('superadmin_session_edit', session_id=log.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9">No logs found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

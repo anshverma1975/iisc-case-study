@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Schedule Proposals - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0">Schedule Proposals</h3>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#proposeModal">
+            <i class="bi bi-plus-lg me-1"></i> Propose New Session
+        </button>
+    </div>
+
+    <h6 class="mb-3">Incoming Requests from Supervisor</h6>
+    <div class="row g-3 mb-4">
+        {% for p in incoming_requests %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-1">{{ p.date }} · {{ p.time }}</h6>
+                    <p class="mb-1 text-muted small">Proposed by {{ p.proposer }}</p>
+                    {% if p.topic %}
+                    <p class="mb-1 small">Topic: {{ p.topic }}</p>
+                    {% endif %}
+                    {% if p.experiment %}
+                    <span class="badge bg-primary mb-2">Experiment</span>
+                    {% endif %}
+                    <div class="d-flex gap-2 mt-2">
+                        <form method="POST" action="{{ url_for('staff_schedule_accept', schedule_id=p.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('staff_schedule_reject', schedule_id=p.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No incoming requests.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h6 class="mb-3">Requests You've Responded To</h6>
+    <div class="row g-3 mb-4">
+        {% for p in incoming_history %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-1">{{ p.date }} · {{ p.time }}</h6>
+                    <p class="mb-1 text-muted small">Proposed by {{ p.proposer }}</p>
+                    {% if p.topic %}
+                    <p class="mb-1 small">Topic: {{ p.topic }}</p>
+                    {% endif %}
+                    <div class="d-flex gap-2 flex-wrap">
+                        {% if p.experiment %}
+                        <span class="badge bg-primary">Experiment</span>
+                        {% endif %}
+                        {% if p.status == 'accepted' %}
+                        <span class="badge bg-success">Accepted</span>
+                        {% elif p.status == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No responded requests yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h6 class="mb-3">Your Sent Proposals</h6>
+    <div class="row g-3 mb-4">
+        {% for p in sent_proposals %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-1">{{ p.date }} · {{ p.time }}</h6>
+                    {% if p.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">Awaiting approval</span>
+                    {% elif p.status == 'accepted' %}
+                    <span class="badge bg-success">Accepted</span>
+                    {% elif p.status == 'rejected' %}
+                    <span class="badge bg-danger">Rejected</span>
+                    {% elif p.status == 'cancelled' %}
+                    <span class="badge bg-secondary">Cancelled</span>
+                    {% endif %}
+                    {% if p.experiment %}
+                    <span class="badge bg-primary">Experiment</span>
+                    {% endif %}
+                    {% if p.can_cancel %}
+                    <form method="POST" action="{{ url_for('staff_schedule_cancel', schedule_id=p.id) }}" class="mt-2" onsubmit="return confirm('Cancel this proposal?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No proposals sent yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% include "_propose_modal.html" %}
+{% endblock %}

@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@600;700&family=DM+Sans:wght@400;500&display=swap');
+
+body {
+    font-family: 'DM Sans', sans-serif;
+}
+
+.hero {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f7f6f2;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.badge-custom {
+    display: inline-block;
+    background-color: #1c1c1c;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    margin-bottom: 1.5rem;
+}
+
+.hero h1 {
+    font-family: 'Lora', serif;
+    font-weight: 700;
+    font-size: 3.5rem;
+    margin-bottom: 0.75rem;
+    color: #1c1c1c;
+}
+
+.hero .subtitle {
+    font-size: 1.1rem;
+    color: #444;
+    margin-bottom: 0.5rem;
+}
+
+.hero .quote {
+    font-style: italic;
+    color: #777;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+}
+
+.btn-custom {
+    padding: 0.6rem 1.8rem;
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+.hero footer {
+    margin-top: 3rem;
+    color: #999;
+    font-size: 0.9rem;
+}

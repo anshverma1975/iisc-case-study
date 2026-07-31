@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Profile - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Profile</h3>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <p><strong>Name:</strong> {{ current_user.name }}</p>
+            <p><strong>Email:</strong> {{ current_user.email }}</p>
+            <p><strong>Role:</strong> Superadmin</p>
+
+            <hr>
+            <h6 class="mb-3">Administrative Controls</h6>
+            <ul class="mb-0">
+                <li>Full read/write access to session logs across all schools, including manual logging and edits.</li>
+                <li>Accept, reject, or propose schedule sessions for any school.</li>
+                <li>Add or remove staff and researcher user accounts.</li>
+                <li>Export session data to CSV for any school and date range.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

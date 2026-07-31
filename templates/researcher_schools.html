@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Schools - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Schools</h3>
+
+    <div class="row g-3">
+        {% for s in summaries %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="mb-2">School {{ s.school }}</h5>
+                    <p class="mb-1"><strong>Coordinator:</strong> {{ s.coordinator }}</p>
+                    <p class="mb-1"><strong>Sessions This Week:</strong> {{ s.sessions_this_week }}</p>
+                    <p class="mb-0"><strong>Avg Engagement:</strong> {{ s.avg_engagement }}%</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

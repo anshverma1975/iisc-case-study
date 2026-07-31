@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Schedule Proposals - EduTracker{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h3 class="mb-0">Schedule Proposals</h3>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#superadminProposeModal">
+            <i class="bi bi-plus-lg me-1"></i> Propose a Session
+        </button>
+    </div>
+
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">School</label>
+            <select name="school" class="form-select" onchange="this.form.submit()">
+                <option value="">All Schools</option>
+                {% for s in schools %}
+                <option value="{{ s }}" {% if selected_school == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <h6 class="mb-3">Pending Proposals (from Staff)</h6>
+    <div class="row g-3 mb-4">
+        {% for p in proposals %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-1">{{ p.school }} · {{ p.proposed_date.strftime('%a, %d %b') }}</h6>
+                    <p class="mb-1">{{ p.start_time }} - {{ p.end_time }}</p>
+                    <p class="mb-1 text-muted small">Proposed by {{ p.proposer.name }}</p>
+                    {% if p.topic %}
+                    <p class="mb-1 small">Topic: {{ p.topic }}</p>
+                    {% endif %}
+                    {% if p.session_type == 'experiment' %}
+                    <span class="badge bg-primary mb-2">Experiment</span>
+                    {% endif %}
+                    <div class="d-flex gap-2 mt-2">
+                        <form method="POST" action="{{ url_for('superadmin_schedule_accept', schedule_id=p.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-success">Accept</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('superadmin_schedule_reject', schedule_id=p.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No pending proposals.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h6 class="mb-3">Staff Proposal History (Accepted / Rejected / Cancelled)</h6>
+    <div class="row g-3 mb-4">
+        {% for p in staff_history %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-1">{{ p.school }} · {{ p.proposed_date.strftime('%a, %d %b') }}</h6>
+                    <p class="mb-1">{{ p.start_time }} - {{ p.end_time }}</p>
+                    <p class="mb-1 text-muted small">Proposed by {{ p.proposer.name }}</p>
+                    {% if p.topic %}
+                    <p class="mb-1 small">Topic: {{ p.topic }}</p>
+                    {% endif %}
+                    <div class="d-flex gap-2 flex-wrap">
+                        {% if p.session_type == 'experiment' %}
+                        <span class="badge bg-primary">Experiment</span>
+                        {% endif %}
+                        {% if p.status == 'accepted' %}
+                        <span class="badge bg-success">Accepted</span>
+                        {% elif p.status == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                        {% elif p.status == 'cancelled' %}
+                        <span class="badge bg-secondary">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">No resolved proposals yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h6 class="mb-3">Your Proposed Sessions</h6>
+    <div class="row g-3 mb-4">
+        {% for p in own_proposals %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="mb-1">{{ p.school }} · {{ p.proposed_date.strftime('%a, %d %b') }}</h6>
+                    <p class="mb-1">{{ p.start_time }} - {{ p.end_time }}</p>
+                    <span class="badge bg-info text-dark mb-1">Sent by you</span>
+                    {% if p.topic %}
+                    <p class="mb-1 small">Topic: {{ p.topic }}</p>
+                    {% endif %}
+                    {% if p.session_type == 'experiment' %}
+                    <span class="badge bg-primary mb-2">Experiment</span>
+                    {% endif %}
+                    <div class="mt-2">
+                        {% if p.status == 'pending' %}
+                        <span class="badge bg-warning text-dark">Awaiting staff response</span>
+                        {% elif p.status == 'accepted' %}
+                        <span class="badge bg-success">Accepted</span>
+                        {% elif p.status == 'rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                        {% elif p.status == 'cancelled' %}
+                        <span class="badge bg-secondary">Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <p class="text-muted">You haven't proposed any sessions yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="superadminProposeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Propose a Session</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('superadmin_schedule_propose') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">School</label>
+                        <select name="school" class="form-select" required>
+                            <option value="" disabled selected>Select school</option>
+                            {% for s in schools %}
+                            <option value="{{ s }}">{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="date" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" name="start_time" class="form-control" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label">End Time</label>
+                            <input type="time" name="end_time" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Topic (optional)</label>
+                        <input type="text" name="topic" class="form-control" placeholder="e.g. Digital education session">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="is_experiment" id="experimentCheckSuperadminPropose">
+                        <label class="form-check-label" for="experimentCheckSuperadminPropose">Request Experiment session</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Proposal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

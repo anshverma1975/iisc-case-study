@@ -1,0 +1,109 @@
+.flash-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+.flash {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border-left: 4px solid #dc3545;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+body {
+    background-color: #f7f5f0;
+    color: #1a1916;
+}
+.navbar,
+.offcanvas {
+    background-color: #3d5a47 !important;
+}
+.btn-primary {
+    background-color: #3d5a47;
+    border-color: #3d5a47;
+}
+.btn-primary:hover {
+    background-color: #2e4436;
+    border-color: #2e4436;
+}
+.btn-outline-primary {
+    color: #3d5a47;
+    border-color: #3d5a47;
+}
+.btn-outline-primary:hover {
+    background-color: #3d5a47;
+    color: #ffffff;
+}
+.text-muted {
+    color: #8c8880 !important;
+}
+.hero {
+    min-height: calc(100vh - 56px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    padding-top: 5rem;
+}
+.badge-custom {
+    display: inline-block;
+    border: 1px solid #e8e4dc;
+    padding: .45rem 1rem;
+    border-radius: 999px;
+    color: #8c8880;
+    font-size: .82rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+h1 {
+    font-size: clamp(3.5rem, 8vw, 6rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -3px;
+}
+.subtitle {
+    max-width: 600px;
+    color: #8c8880;
+    font-size: 1.1rem;
+    margin: 2rem auto;
+}
+.quote {
+    font-size: 1.4rem;
+    font-family: 'Lora', serif;
+    font-weight: 400;
+    letter-spacing: .03em;
+    font-style: italic;
+    color: #8c8880;
+    margin: 2rem auto;
+}
+.btn-custom {
+    border-radius: 999px;
+    padding: .85rem 2rem;
+}
+footer {
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    text-align: center;
+    color: #b8b4ac;
+    font-size: .85rem;
+}
+a {
+    color: #3d5a47;
+}
+p {
+    font-family: 'Lora', serif;
+    font-weight: 400;
+}
+a:hover {
+    color: #2e4436;
+}
+.login-title {
+    font-family: 'Lora', serif;
+    font-weight: 400;
+}

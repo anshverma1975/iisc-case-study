@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %} Staff Dashboard {% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2> Welcome, {{ name }} </h2>
+
+    <div class="card mb-4 border-0 shadow-sm mt-3">
+        <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
+            {% if upcoming_session %}
+            <div>
+                <h6 class="text-muted mb-1">Upcoming Session</h6>
+                <h5 class="mb-1">{{ upcoming_session.date }} · {{ upcoming_session.time }}</h5>
+                <p class="mb-0">{{ upcoming_session.topic }}</p>
+            </div>
+            <div>
+                {% if upcoming_session.experiment %}
+                <span class="badge bg-primary">Experiment Session</span>
+                {% else %}
+                <span class="badge bg-secondary">Normal Session</span>
+                {% endif %}
+            </div>
+            {% else %}
+            <div>
+                <h6 class="text-muted mb-1">Upcoming Session</h6>
+                <p class="mb-0 text-muted">No upcoming session</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title"> Sessions This Week </h6>
+                        <h2 class="mb-0">{{ stats.sessions_this_week }}</h2>
+                    </div>
+                    <i class="bi bi-calendar2-check fs-1 text-primary"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title"> Avg Engagement </h6>
+                        <h2 class="mb-0">{{ stats.avg_engagement }}%</h2>
+                    </div>
+                    <i class="bi bi-graph-up-arrow fs-1 text-success"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title"> Tech Issues </h6>
+                        <h2 class="mb-0">{{ stats.tech_issues }}</h2>
+                    </div>
+                    <i class="bi bi-exclamation-triangle fs-1 text-warning"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-title"> Pending Proposals </h6>
+                        <h2 class="mb-0">{{ stats.pending_proposals }}</h2>
+                    </div>
+                    <i class="bi bi-hourglass-split fs-1 text-danger"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h4> Quick Actions </h4>
+            <div class="row mt-2 g-2">
+                <div class="col-6 col-md-3">
+                    {% if already_logged_today %}
+                    <button class="btn btn-secondary w-100" disabled><i class="bi bi-check2-circle me-2"></i> Already Logged Today </button>
+                    {% elif schedule_today %}
+                    <a href="{{ url_for('staff_session_today') }}" id="startLogBtn" class="btn btn-success w-100"><i class="bi bi-camera me-2"></i> Start Today's Log </a>
+                    {% else %}
+                    <button class="btn btn-outline-secondary w-100" id="startLogBtn" disabled><i class="bi bi-camera me-2"></i> Start Today's Log </button>
+                    <p class="text-muted small mt-1 mb-0">No session scheduled for today</p>
+                    {% endif %}
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="{{ url_for('staff_schedule') }}" class="btn btn-outline-primary w-100"><i class="bi bi-calendar-week me-2"></i> Manage Proposals </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="{{ url_for('staff_sessions') }}" class="btn btn-outline-primary w-100"><i class="bi bi-journal-check me-2"></i> Manage Sessions </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#feedbackTemplatesModal"><i class="bi bi-file-earmark-text me-2"></i> Feedback Templates </button>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12 mt-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4> Recent Logs </h4>
+                        <a href="{{ url_for('staff_logs') }}"> Session History </a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-center">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th> Date </th>
+                                    <th> Headcount </th>
+                                    <th> Engagement </th>
+                                    <th> Tech Issue </th>
+                                    <th> Supervisor Present </th>
+                                    <th> Experiment Session </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in recent_logs %}
+                                <tr class="{{ 'table-warning' if log.headcount == 0 else '' }}">
+                                    <td> {{ log.date.strftime('%d %b %Y') }} </td>
+                                    <td> {{ log.headcount }} </td>
+                                    <td> {{ log.engagement }}% </td>
+                                    <td>
+                                        {% if log.technical_issue %}
+                                        <span class="badge bg-danger">Yes</span>
+                                        {% else %}
+                                        <span class="badge bg-success">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if log.supervisor_present %}
+                                        <span class="badge bg-success">Yes</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if log.session_type == 'experiment' %}
+                                        <span class="badge bg-primary">Yes</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">No</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6"> No logs yet. </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "_propose_modal.html" %}
+
+<script>
+(function () {
+    var btn = document.getElementById('startLogBtn');
+    if (!btn) return;
+    var today = new Date().toISOString().slice(0, 10);
+    var active = localStorage.getItem('sessionActive') === 'true';
+    var sessionDate = localStorage.getItem('sessionDate');
+    if (active && sessionDate === today) {
+        var link = document.createElement('a');
+        link.href = "{{ url_for('staff_session_today') }}";
+        link.id = 'startLogBtn';
+        link.className = 'btn btn-warning w-100';
+        link.innerHTML = '<i class="bi bi-arrow-repeat me-2"></i> Resume Session';
+        btn.replaceWith(link);
+    }
+})();
+</script>
+{% endblock %}
