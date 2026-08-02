@@ -1,1 +1,1 @@
-![Visitor Count](https://komarev.com/ghpvc/?username=anshverma1975&repo=iisc-case-study&color=blue)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fanshverma1975%2Fiisc-case-study&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flag=false)](https://hits.seeyoufarm.com)
